@@ -1,5 +1,5 @@
 #' Filtert unklassifizierte Kursdaten aus der db_data_universitaet_>uni_name<.rds
-#
+#'
 #' Diese Funktion vergleicht aktuelle Scraping-Daten mit db_data_universitaet_>uni_name<.rds und gibt alle Zeilen aus den aktuellen Scraping-Daten zurück, 
 #' die noch keiner der definierten Kategorien zugeordnet wurden. Die Identifikation erfolgt über 1 bis 3 Schlüsselvariablen.
 #'
@@ -23,6 +23,7 @@
 #'   )
 #' }
 #'
+#' @importFrom dplyr select all_of distinct left_join filter across
 #' @export
 get_unclassified_data <- function(raw_data, db_data_path, key_vars = c("titel", "nummer")) {
   # Sicherstellen, dass 1-3 Key-Variablen angegeben sind
@@ -31,7 +32,7 @@ get_unclassified_data <- function(raw_data, db_data_path, key_vars = c("titel", 
   }
   
   # Klassifizierte Daten laden und nur relevante Spalten nehmen
-  classified_data <- readRDS(db_data_path) %>%
+  classified_data <- readRDS(db_data_path) |>
     dplyr::select(
       dplyr::all_of(key_vars),
       data_analytics_ki,
@@ -40,15 +41,15 @@ get_unclassified_data <- function(raw_data, db_data_path, key_vars = c("titel", 
       it_architektur,
       hardware_robotikentwicklung,
       quantencomputing
-    ) %>%
+    ) |>
     dplyr::distinct(dplyr::across(dplyr::all_of(key_vars)), .keep_all = TRUE)
   
   # Join mit den Rohdaten über die Key-Variablen
-  raw_data_join <- raw_data %>%
+  raw_data_join <- raw_data |>
     dplyr::left_join(classified_data, by = key_vars)
   
   # Nur nicht klassifizierte Zeilen filtern
-  raw_data_to_classify <- raw_data_join %>%
+  raw_data_to_classify <- raw_data_join |>
     dplyr::filter(
       is.na(data_analytics_ki) &
       is.na(softwareentwicklung) &
@@ -56,7 +57,7 @@ get_unclassified_data <- function(raw_data, db_data_path, key_vars = c("titel", 
       is.na(it_architektur) &
       is.na(hardware_robotikentwicklung) &
       is.na(quantencomputing)
-    ) %>%
+    ) |>
     dplyr::select(dplyr::all_of(key_vars), kursbeschreibung, lernziele)
   
   return(raw_data_to_classify)

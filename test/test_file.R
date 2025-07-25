@@ -1,4 +1,6 @@
 # Beispielaufruf mit 3 Key-Variablen
+library(SVCleanR)
+
 raw_data_bremen_to_classify_alt <- get_unclassified_data(
   raw_data_bremen,
   "C:/SV/HEX/Scraping/data/single_universities/Universitaet_Bremen/db_data_universitaet_bremen.rds",
@@ -6,3 +8,5 @@ raw_data_bremen_to_classify_alt <- get_unclassified_data(
 )
 
 getwd()
+devtools::document()
+devtools::install()
